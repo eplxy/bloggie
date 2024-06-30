@@ -19,7 +19,7 @@ export default function Header() {
                 setUserInfo(userInfo);
             });
         });
-    }, []);
+    }, [setUserInfo]);
 
     function logout() {
         // Assuming the token is stored in local storage under the key 'token'
@@ -42,7 +42,7 @@ export default function Header() {
         <Link to="/" className="logo">Bloggie</Link>
         <nav>
             {username && (<>
-                <a><span style= {{fontWeight:"bold"}}>Hi there, {username}!</span></a>
+                <span style={{ fontWeight: "bold" }}>Hi there, {username}!</span>
                 <Link to="/create">Create new post</Link>
                 <a onClick={logout}>Logout</a>
             </>
