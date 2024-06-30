@@ -1,9 +1,11 @@
 import { useEffect, useContext } from "react";
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { UserContext } from "../userContext/UserContext";
 
 
 export default function Header() {
+
+    const navToHome = useNavigate();
 
     const { setUserInfo, userInfo } = useContext(UserContext);
     useEffect(() => {
@@ -34,6 +36,7 @@ export default function Header() {
         setUserInfo(null);
         // Optionally, remove the token from local storage on logout
         localStorage.removeItem('token');
+        navToHome('/');
     }
 
     const username = userInfo?.username;

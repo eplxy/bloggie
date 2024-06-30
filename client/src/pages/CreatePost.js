@@ -1,12 +1,15 @@
-import ReactQuill from "react-quill";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import 'react-quill/dist/quill.snow.css';
 import Editor from '../components/Editor'
 
 
 
 export default function CreatePost() {
+
+    const navigate = useNavigate();
+
+    // HIT get /profile to validate JWT!!!
 
     const [title, setTitle] = useState('');
     const [summary, setSummary] = useState('');
@@ -47,7 +50,7 @@ export default function CreatePost() {
                 value={summary}
                 onChange={ev => setSummary(ev.target.value)}
             />
-            <input type="file"
+            <input type="file" accept="image/*"
                 onChange={ev => setFiles(ev.target.files)}
             />
             <Editor onChange={setContent} value={content} />

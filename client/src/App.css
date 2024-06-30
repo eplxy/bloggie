@@ -56,6 +56,7 @@ header nav {
 }
 
 div.post {
+  /* display: flex; */
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
@@ -124,6 +125,7 @@ form.register h1 {
 }
 
 div.post-page div.image {
+  justify-content: center;
   max-height: 300px;
   display: flex;
   overflow: hidden;
@@ -162,24 +164,81 @@ div.post-page div.content p {
   line-height: 1.6rem;
 }
 
-div.edit-row {
+div.edit-delete {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 50px;
+  align-items: center;
+}
+
+div.edit {
   text-align: center;
   margin-bottom: 20px;
 }
 
-div.post-page a.edit-btn {
+
+div.delete {
+  display: flex-inline;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+div.post-page a.edit-btn,
+div.post-page span.delete-btn {
 
   background-color: #333;
-  display: inline-flex;
   gap: 5px;
+  display: inline-flex;
   color: #fff;
   padding: 15px 30px;
   border-radius: 5px;
   text-decoration: none;
   align-items: center;
-
+  cursor: pointer;
 }
 
-a svg {
+a svg,
+span svg {
   height: 20px;
+}
+
+.confirm-delete-content {
+  margin: auto;
+  background: rgb(255, 255, 255);
+  width: 40%;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  height: 100px;
+}
+
+.confirm-delete-content div.choice-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.confirm-delete-content div.choice-row button {
+  height: 35px;
+  max-width: 40%;
+}
+
+.confirm-delete-arrow {
+  color: rgb(255, 255, 255);
+}
+
+[role='tooltip'].confirm-delete-content {
+  width: 200px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 0px 3px;
+}
+
+.confirm-delete-overlay {
+  background: rgba(74, 74, 74, 0.5);
+}
+
+[data-popup='tooltip'].confirm-delete-overlay {
+  background: transparent;
 }
