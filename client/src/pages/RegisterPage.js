@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../userContext/UserContext";
 
 export default function RegisterPage() {
 
@@ -7,6 +8,14 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const navigate = useNavigate();
+
+
+    const { userInfo } = useContext(UserContext);
+    useEffect(() => {
+        if (userInfo) {
+            navigate('/');
+        }
+    });
 
 
     async function register(ev) {

@@ -14,7 +14,7 @@ export default function Post({ _id, title, summary, cover, createdAt, author }) 
         <div className="post">
             <div className="image">
                 <Link to={`/post/${_id}`}>
-                    <img src={catImageUrl}></img>
+                    <img alt="Post cover" src={catImageUrl}></img>
                 </Link>
             </div>
             <div className="texts">
@@ -22,7 +22,7 @@ export default function Post({ _id, title, summary, cover, createdAt, author }) 
                     <h2>{title}</h2>
                 </Link>
                 <p className="info">
-                    <a className="author">{author.username}</a>
+                    <span className="author">{author.username}</span>
                     <ReactTimeAgo date={date} locale="en-CA" />
                 </p>
                 <p className="summary">{summary}</p>

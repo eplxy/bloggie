@@ -1,6 +1,10 @@
 * {
   box-sizing: border-box;
+  text-wrap: pretty;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
 }
+
 
 a {
   cursor: pointer;
@@ -55,6 +59,9 @@ header nav {
 
 }
 
+
+
+
 div.post {
   /* display: flex; */
   display: grid;
@@ -63,12 +70,31 @@ div.post {
   margin-bottom: 30px;
 }
 
+div.post div.texts {
+  order: -1;
+}
+
+div.post div.image {
+  order: 1;
+}
 
 @media screen and (min-width: 600px) {
   div.post {
     grid-template-columns: 0.9fr 1.1fr;
   }
+
+  div.post div.texts {
+    order: 1;
+  }
+
+  div.post div.image {
+    order: -1;
+  }
+
 }
+
+
+
 
 
 div.post div.texts h2 {
@@ -160,8 +186,16 @@ div.post-page div.author {
   margin-bottom: 20px;
 }
 
+div.post-page div.content {
+  text-wrap: wrap;
+}
+
 div.post-page div.content p {
   line-height: 1.6rem;
+  text-wrap: wrap;
+  width: 100%;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
 }
 
 div.edit-delete {

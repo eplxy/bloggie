@@ -7,7 +7,7 @@ export default function Header() {
 
     const navToHome = useNavigate();
 
-    const { setUserInfo, userInfo } = useContext(UserContext);
+    const {userInfo, setUserInfo } = useContext(UserContext);
     useEffect(() => {
         // Assuming the token is stored in local storage under the key 'token'
         const token = localStorage.getItem('token');
@@ -47,7 +47,7 @@ export default function Header() {
             {username && (<>
                 <span style={{ fontWeight: "bold" }}>Hi there, {username}!</span>
                 <Link to="/create">Create new post</Link>
-                <a onClick={logout}>Logout</a>
+                <span onClick={logout} style={{cursor:"pointer"}}>Logout</span>
             </>
             )}
             {!username && (<>

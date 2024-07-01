@@ -65,6 +65,8 @@ app.get('/profile', (req, res) => {
             if (err) throw err;
             res.json(info);
         });
+    } else {
+        res.json(null);
     }
 });
 

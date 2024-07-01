@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import 'react-quill/dist/quill.snow.css';
 import Editor from '../components/Editor'
+import { UserContext } from '../userContext/UserContext';
 
 
 
@@ -9,7 +10,14 @@ export default function CreatePost() {
 
     const navigate = useNavigate();
 
-    // HIT get /profile to validate JWT!!!
+    const { userInfo } = useContext(UserContext);
+    useEffect(() => {
+
+        if (!userInfo) {
+            navigate('/');
+        }
+
+    });
 
     const [title, setTitle] = useState('');
     const [summary, setSummary] = useState('');
