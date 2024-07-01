@@ -1,24 +1,27 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const User = require('./models/User')
-const Post = require('./models/Post')
+const User = require('./models/User');
+const Post = require('./models/Post');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
+const path = require('path');
 const app = express();
+
+const buildPath = path.join(__dirname, '../client/build')
 
 const salt = bcrypt.genSaltSync(10);
 const secret = '231pap423e24c6s6sor1s2r8ck';
+const PORT = process.env.PORT || 4000;
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL || 'http://localhost:3000' }));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
-
 
 mongoose.connect('mongodb+srv://stevendvlam:83Hziq0PeQE5or1I@cluster0.8lqlbbo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
@@ -31,15 +34,12 @@ app.post('/register', async (req, res) => {
         });
         res.json(userDoc);
     } catch (e) {
-        //should only be duplicate thrown as error
         res.status(400).json(e);
     }
-
 });
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-
     const userDoc = await User.findOne({ username });
     if (!userDoc) {
         return res.status(400).json('User not found');
@@ -54,7 +54,7 @@ app.post('/login', async (req, res) => {
             });
         });
     } else {
-        res.status(400).json('Invalid credentials')
+        res.status(400).json('Invalid credentials');
     }
 });
 
@@ -75,17 +75,13 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
-
     let newPath = null;
-
     if (req.file) {
-
         const { originalname, path } = req.file;
         const parts = originalname.split('.');
         const ext = parts[parts.length - 1];
-        const newPath = path + '.' + ext;
+        newPath = path + '.' + ext;
         fs.renameSync(path, newPath);
-
     }
 
     const { token } = req.cookies;
@@ -99,10 +95,8 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
             cover: newPath,
             author: info.id
         });
-
         res.json(postDoc);
     });
-
 });
 
 app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
@@ -114,6 +108,7 @@ app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
         newPath = path + '.' + ext;
         fs.renameSync(path, newPath);
     }
+
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, async (err, info) => {
         if (err) throw err;
@@ -129,26 +124,19 @@ app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
             content,
             cover: newPath ? newPath : postDoc.cover
         });
-
         res.json(postDoc);
     });
-
-
 });
 
 app.get('/post', async (req, res) => {
-    res.json(
-        await Post.find()
-            .populate('author', ['username'])
-            .sort({ createdAt: -1 })
-            .limit(20));
+    res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(20));
 });
 
 app.get('/post/:id', async (req, res) => {
     const { id } = req.params;
-    postDoc = await Post.findById(id).populate('author', ['username']);
+    const postDoc = await Post.findById(id).populate('author', ['username']);
     res.json(postDoc);
-})
+});
 
 app.delete('/post/:id', async (req, res) => {
     const { token } = req.cookies;
@@ -163,7 +151,16 @@ app.delete('/post/:id', async (req, res) => {
         await postDoc.deleteOne();
         res.status(204).json();
     });
+});
 
-})
+// Serve static files from the React app
+app.use(express.static(buildPath));
 
-app.listen(4000);
+// The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
