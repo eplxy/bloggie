@@ -66,7 +66,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_429B608E9AB043F7B7734E7B55F8DA99 }}
 
       - name: Extract deployment package
-        run: unzip -o node-app/bloggie.zip -d ./deploy
+        run: unzip -o bloggie.zip -d ./deploy
   
       - name: List extracted files for debugging
         run: ls -la ./deploy
