@@ -62,9 +62,16 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A0C7647F379C4B6EB6AD27C4ABD72B17 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_429B608E9AB043F7B7734E7B55F8DA99 }}
 
+      - name: Extract deployment package
+        run: unzip -o bloggie.zip -d ./deploy
+  
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'bloggie'
           slot-name: 'Production'
           package: bloggie.zip
+
+      - name: Clean up deployment artifacts
+        run: rm -rf ./deploy
