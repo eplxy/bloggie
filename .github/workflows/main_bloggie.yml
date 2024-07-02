@@ -27,12 +27,11 @@ jobs:
       
       - name: Install backend dependencies
         run: |
-          cd ../api
+          cd api
           yarn install
 
       - name: Archive production artifacts
         run: |
-          cd ..
           zip -r bloggie.zip client api -x "*/node_modules/*"
 
       - name: Upload artifact for deployment
