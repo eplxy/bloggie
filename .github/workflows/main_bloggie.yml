@@ -54,6 +54,13 @@ jobs:
           name: node-app
           path: bloggie.zip
 
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_071B3D92B7864D7FA52142603DE41991 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A0C7647F379C4B6EB6AD27C4ABD72B17 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_429B608E9AB043F7B7734E7B55F8DA99 }}
+
       - name: Deploy to Azure Web App - Backend
         uses: azure/webapps-deploy@v2
         with:
