@@ -1,9 +1,12 @@
 {
-  "name": "bloggie",
+  "name": "bloggers",
   "version": "1.0.0",
   "scripts": {
       "build": "yarn run build --prefix client",
-      "start": "node api/index.js",
-      "heroku-postbuild": "yarn install --prefix client && yarn run build --prefix client"
+      "start": "node api/index.js"
+    },
+
+  "engines": {
+    "node": "20.x" 
   }
 }
