@@ -33,8 +33,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: node-app
-          path: .
-
+          path: bloggie.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,6 +49,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: node-app
+
+      - name: Extract zip archive
+        run: |
+          unzip bloggie.zip
       
       - name: Login to Azure
         uses: azure/login@v1
