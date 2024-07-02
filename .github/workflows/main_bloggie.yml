@@ -20,13 +20,13 @@ jobs:
 
       - name: Yarn install and build frontend
         run: |
-          cd bloggie/client
+          cd client
           yarn install
           yarn build
       
       - name: Yarn install backend dependencies
         run: |
-          cd bloggie/api
+          cd api
           yarn install
       
       - name: Upload artifact for deployment job
