@@ -2,9 +2,9 @@
   "name": "bloggers",
   "version": "1.0.0",
   "scripts": {
-      "build": "yarn run build --prefix client",
+      "build": "npm run build --prefix client",
       "start": "node api/index.js",
-      "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false yarn install --prefix client && yarn run build --prefix client"
+      "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
     },
 
   "engines": {
