@@ -1,0 +1,11 @@
+{
+  "name": "bloggie",
+  "version": "1.0.0",
+  "description": "A blog web-app built following a tutorial.",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "author": "",
+  "license": "ISC"
+}
