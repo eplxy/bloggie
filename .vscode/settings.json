@@ -2,13 +2,11 @@
     "appService.defaultWebAppToDeploy": "undefined/subscriptions/1caed62a-2251-4a44-b366-399d979959a6/resourceGroups/bloggie-rg/providers/Microsoft.Web/sites/bloggie",
     "appService.deploySubpath": ".",
     "appService.zipIgnorePattern": [
-        "node_modules{,/**}",
-        ".cache{,/**}",
-        ".github{,/**}",
-        ".vscode{,/**}",
-        ".gitignore",
-        "client/node_modules{,/**}",
-        "client/.cache{,/**}",
-        "api/node_modules{,/**}"
+        ".git",
+        ".vscode",
+        "node_modules",
+        "client/node_modules",
+        "client/build",
+        "api/node_modules"
     ]
 }

@@ -1,8 +1,8 @@
 {
-  "name": "bloggers",
+  "name": "bloggie",
   "version": "1.0.0",
   "scripts": {
-      "build": "yarn run build --prefix client",
+      "build": "npm run build --prefix client",
       "start": "node api/index.js"
     },
 
