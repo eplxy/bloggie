@@ -1,0 +1,10 @@
+{
+  "name": "bloggie",
+  "version": "1.0.0",
+  "description": "A blog web-app built following a tutorial.",
+  "scripts": {
+    "start": "node api/index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
