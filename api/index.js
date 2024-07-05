@@ -6,11 +6,10 @@ const Post = require('./models/Post');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const multer = require('multer');
-const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const { S3Client } = require('@aws-sdk/client-s3');
 
 const buildPath = path.join(__dirname, '../client/build')
 
@@ -23,7 +22,20 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
-mongoose.connect('mongodb+srv://stevendvlam:83Hziq0PeQE5or1I@cluster0.8lqlbbo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
+mongoose.connect(process.env.MONGO_URL);
+
+async function uploadToS3(path, originalFilename, mimetype) {
+    const client = new S3Client({
+        region: 'us-east-2',
+        credentials: {
+            accessKey: process.env.S3_ACCESS_KEY,
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+        }
+    });
+
+    console.log({ path, originalFilename, mimetype });
+
+}
 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
@@ -74,14 +86,12 @@ app.post('/logout', (req, res) => {
     res.cookie('token', '').json('ok');
 });
 
-app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
+app.post('/post', async (req, res) => {
     let newPath = null;
+    const uploadedFiles = [];
     if (req.file) {
         const { originalname, path } = req.file;
-        const parts = originalname.split('.');
-        const ext = parts[parts.length - 1];
-        newPath = path + '.' + ext;
-        fs.renameSync(path, newPath);
+        await uploadToS3(path, originalname, mimetype);
     }
 
     const { token } = req.cookies;
@@ -99,7 +109,7 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
     });
 });
 
-app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
+app.put('/post', async (req, res) => {
     let newPath = null;
     if (req.file) {
         const { originalname, path } = req.file;
