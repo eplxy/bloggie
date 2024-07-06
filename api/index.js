@@ -5,17 +5,19 @@ const User = require('./models/User');
 const Post = require('./models/Post');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
 const multer = require('multer');
-const uploadMiddleware = multer({ dest: 'uploads/' });
+const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+require('dotenv').config({ path: path.resolve(__dirname, './.env') });
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
 const buildPath = path.join(__dirname, '../client/build')
 
 const salt = bcrypt.genSaltSync(10);
 const secret = '231pap423e24c6s6sor1s2r8ck';
+const bucket = 'stella-bloggie';
 const PORT = process.env.PORT || 4000;
 
 app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL || 'http://localhost:3000' }));
@@ -23,9 +25,49 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
-mongoose.connect('mongodb+srv://stevendvlam:83Hziq0PeQE5or1I@cluster0.8lqlbbo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
+
+async function uploadToS3(path, originalFilename, mimetype) {
+    const client = new S3Client({
+        region: 'us-east-2',
+        credentials: {
+            accessKeyId: process.env.S3_ACCESS_KEY,
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+        }
+    });
+
+    const parts = originalFilename.split('.');
+    const ext = parts[parts.length - 1];
+    const newFilename = Date.now() + '.' + ext;
+
+    await client.send(new PutObjectCommand({
+        Bucket: bucket,
+        Body: fs.readFileSync(path),
+        Key: newFilename,
+        ContentType: mimetype,
+        ACL: 'public-read',
+    }));
+    return `https://${bucket}.s3.amazonaws.com/${newFilename}`
+}
+
+
+async function DeleteFromS3(path) {
+    const client = new S3Client({
+        region: 'us-east-2',
+        credentials: {
+            accessKeyId: process.env.S3_ACCESS_KEY,
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+        }
+    });
+
+    await client.send(new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: path,
+    }));
+}
+
 
 app.post('/register', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const { username, password } = req.body;
     try {
         const userDoc = await User.create({
@@ -39,6 +81,8 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
     const { username, password } = req.body;
     const userDoc = await User.findOne({ username });
     if (!userDoc) {
@@ -59,6 +103,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/profile', (req, res) => {
+
     const { token } = req.cookies;
     if (token) {
         jwt.verify(token, secret, {}, (err, info) => {
@@ -74,14 +119,16 @@ app.post('/logout', (req, res) => {
     res.cookie('token', '').json('ok');
 });
 
-app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
-    let newPath = null;
+const photosMiddleware = multer({ dest: '/tmp' });
+
+app.post('/post', photosMiddleware.single('file'), async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    let url = null;
+    const uploadedFiles = [];
     if (req.file) {
-        const { originalname, path } = req.file;
-        const parts = originalname.split('.');
-        const ext = parts[parts.length - 1];
-        newPath = path + '.' + ext;
-        fs.renameSync(path, newPath);
+        const { originalname, path, mimetype } = req.file;
+        url = await uploadToS3(path, originalname, mimetype);
     }
 
     const { token } = req.cookies;
@@ -92,53 +139,68 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
             title,
             summary,
             content,
-            cover: newPath,
+            cover: url,
             author: info.id
         });
         res.json(postDoc);
     });
 });
 
-app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
-    let newPath = null;
-    if (req.file) {
-        const { originalname, path } = req.file;
-        const parts = originalname.split('.');
-        const ext = parts[parts.length - 1];
-        newPath = path + '.' + ext;
-        fs.renameSync(path, newPath);
-    }
+app.put('/post', photosMiddleware.single('file'), async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    let url = null;
+
 
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, async (err, info) => {
         if (err) throw err;
         const { id, title, summary, content } = req.body;
         const postDoc = await Post.findById(id);
+
         const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
         if (!isAuthor) {
             return res.status(400).json('You are not the author of this post.');
+        }
+        if (req.file) {
+            if (postDoc.cover) {
+                const splits = postDoc?.cover.split('/');
+                const coverFileName = splits[splits.length - 1];
+                await DeleteFromS3(coverFileName);
+            }
+            const { originalname, path, mimetype } = req.file;
+            url = await uploadToS3(path, originalname, mimetype);
         }
         await postDoc.updateOne({
             title,
             summary,
             content,
-            cover: newPath ? newPath : postDoc.cover
+            cover: url ? url : postDoc.cover
         });
+
+
+
         res.json(postDoc);
     });
 });
 
 app.get('/post', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
     res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(20));
 });
 
 app.get('/post/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
     const { id } = req.params;
     const postDoc = await Post.findById(id).populate('author', ['username']);
     res.json(postDoc);
 });
 
 app.delete('/post/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, async (err, info) => {
         if (err) throw err;
@@ -147,6 +209,11 @@ app.delete('/post/:id', async (req, res) => {
         const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
         if (!isAuthor) {
             return res.status(400).json('You are not the author of this post.');
+        }
+        if (postDoc.cover) {
+            const splits = postDoc?.cover.split('/');
+            const coverFileName = splits[splits.length - 1];
+            await DeleteFromS3(coverFileName);
         }
         await postDoc.deleteOne();
         res.status(204).json();
