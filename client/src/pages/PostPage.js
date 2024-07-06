@@ -5,6 +5,7 @@ import { UserContext } from "../userContext/UserContext";
 import Popup from 'reactjs-popup';
 import { Link } from 'react-router-dom';
 import Image from '../components/Image';
+import axios from "axios";
 
 export default function PostPage() {
 
@@ -18,19 +19,16 @@ export default function PostPage() {
 
 
     useEffect(() => {
-        fetch(`http://localhost:4000/post/${id}`)
+        axios.get(`/post/${id}`)
             .then(response => {
-                response.json().then(postInfo => {
-                    setPostInfo(postInfo);
-                });
+                setPostInfo(response.data);
             });
     }, [id]);
 
 
     async function deletePost(ev) {
         ev.preventDefault();
-        const response = await fetch('http://localhost:4000/post/' + id, {
-            method: 'DELETE',
+        const response = await axios.delete('/post/' + id, {
             credentials: 'include',
         });
         if (response.status === 204) {

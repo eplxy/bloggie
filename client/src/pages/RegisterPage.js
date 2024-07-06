@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../userContext/UserContext";
+import axios from "axios";
 
 export default function RegisterPage() {
 
@@ -22,20 +23,19 @@ export default function RegisterPage() {
         ev.preventDefault();
 
         if (confirmPassword !== password) {
-            alert ('Passwords do not match. Please try again.')
+            alert('Passwords do not match. Please try again.')
             return;
         }
 
-
-        const response = await fetch('http://localhost:4000/register', {
-            method: 'POST',
-            body: JSON.stringify({ username, password }),
-            headers: { 'Content-Type': 'application/json' },
-        })
-        if (response.status === 200) {
-            alert('Registration successful. Now redirecting you to the login page.');
-            navigate('/login');
-        } else {
+        try {
+            const response = await axios.post('/register', { username, password }, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (response.status === 200) {
+                alert('Registration successful. Now redirecting you to the login page.');
+                navigate('/login');
+            }
+        } catch (e) {
             alert('Registration Failed. Username already exists!');
         }
 
@@ -56,8 +56,8 @@ export default function RegisterPage() {
                 onChange={ev => setPassword(ev.target.value)}
             />
             <input type="password" placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={ev => setConfirmPassword(ev.target.value)}
+                value={confirmPassword}
+                onChange={ev => setConfirmPassword(ev.target.value)}
             />
             <button>Register</button>
         </form>

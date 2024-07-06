@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import 'react-quill/dist/quill.snow.css';
 import Editor from '../components/Editor'
 import { UserContext } from '../userContext/UserContext';
-
+import axios from 'axios';
 
 
 export default function CreatePost() {
@@ -38,12 +38,10 @@ export default function CreatePost() {
             data.set('content', content);
             data.set('file', files[0]);
             ev.preventDefault();
-            const response = await fetch('http://localhost:4000/post', {
-                method: 'POST',
-                body: data,
+            const response = await axios.post('/post', data,{
                 credentials: 'include',
             });
-            if (response.ok) {
+            if (response.status >= 200 && response.status < 300) {
                 setRedirect(true);
             }
         } else

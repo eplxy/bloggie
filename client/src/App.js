@@ -8,6 +8,10 @@ import RegisterPage from './pages/RegisterPage';
 import { UserContextProvider } from './userContext/UserContext';
 import PostPage from './pages/PostPage';
 import EditPost from './pages/EditPost';
+import axios from "axios";
+
+axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
+axios.defaults.withCredentials = true;
 
 function App() {
   return (

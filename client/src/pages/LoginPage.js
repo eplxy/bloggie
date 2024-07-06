@@ -1,6 +1,8 @@
 import { useContext, useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { UserContext } from "../userContext/UserContext";
+import axios from 'axios';
+
 
 export default function LoginPage() {
 
@@ -18,22 +20,21 @@ export default function LoginPage() {
 
     async function login(ev) {
         ev.preventDefault();
-        const response = await fetch('http://localhost:4000/login', {
-            method: 'POST',
-            body: JSON.stringify({ username, password }),
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-        });
+        try {
+            const response = await axios.post('/login', { username, password }, {
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true,
+            });
 
-        if (response.ok) {
-            response.json().then(userInfo => {
-                setUserInfo(userInfo);
+            if (response.status >= 200 && response.status < 300) {
+                setUserInfo(response.data);
                 setRedirect(true);
-            })
-        } else {
-            alert('Invalid credentials. Please try again.')
+            }
+        } catch (e) {
+            alert('Invalid credentials. Please try again.');
         }
     }
+
 
     if (redirect) {
         return <Navigate to={'/'} />

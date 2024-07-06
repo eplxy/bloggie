@@ -1,34 +1,31 @@
 import { useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import { UserContext } from "../userContext/UserContext";
-
+import axios from "axios";
 
 export default function Header() {
 
     const navToHome = useNavigate();
 
-    const {userInfo, setUserInfo } = useContext(UserContext);
+    const { userInfo, setUserInfo } = useContext(UserContext);
     useEffect(() => {
         // Assuming the token is stored in local storage under the key 'token'
         const token = localStorage.getItem('token');
-        fetch('http://localhost:4000/profile', {
+        axios.get('/profile', {
             credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${token}`
             },
         }).then(response => {
-            response.json().then(userInfo => {
-                setUserInfo(userInfo);
-            });
+            setUserInfo(response.data);
         });
     }, [setUserInfo]);
 
     function logout() {
         // Assuming the token is stored in local storage under the key 'token'
         const token = localStorage.getItem('token');
-        fetch('http://localhost:4000/logout', {
+        axios.post('/logout', {
             credentials: 'include',
-            method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
             },
@@ -42,12 +39,12 @@ export default function Header() {
     const username = userInfo?.username;
 
     return (<header>
-        <Link to="/" className="logo">Bloggie</Link>
+        <Link reloadDocument to="/" className="logo">Bloggie</Link>
         <nav>
             {username && (<>
                 <span style={{ fontWeight: "bold" }}>Hi there, {username}!</span>
                 <Link to="/create">Create new post</Link>
-                <span onClick={logout} style={{cursor:"pointer"}}>Logout</span>
+                <span onClick={logout} style={{ cursor: "pointer" }}>Logout</span>
             </>
             )}
             {!username && (<>

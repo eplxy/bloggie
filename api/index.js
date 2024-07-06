@@ -66,7 +66,7 @@ async function DeleteFromS3(path) {
 }
 
 
-app.post('/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
     const { username, password } = req.body;
     try {
@@ -80,7 +80,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     const { username, password } = req.body;
@@ -102,7 +102,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/profile', (req, res) => {
+app.get('/api/profile', (req, res) => {
 
     const { token } = req.cookies;
     if (token) {
@@ -115,17 +115,16 @@ app.get('/profile', (req, res) => {
     }
 });
 
-app.post('/logout', (req, res) => {
+app.post('/api/logout', (req, res) => {
     res.cookie('token', '').json('ok');
 });
 
 const photosMiddleware = multer({ dest: '/tmp' });
 
-app.post('/post', photosMiddleware.single('file'), async (req, res) => {
+app.post('/api/post', photosMiddleware.single('file'), async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     let url = null;
-    const uploadedFiles = [];
     if (req.file) {
         const { originalname, path, mimetype } = req.file;
         url = await uploadToS3(path, originalname, mimetype);
@@ -146,7 +145,7 @@ app.post('/post', photosMiddleware.single('file'), async (req, res) => {
     });
 });
 
-app.put('/post', photosMiddleware.single('file'), async (req, res) => {
+app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     let url = null;
@@ -184,13 +183,13 @@ app.put('/post', photosMiddleware.single('file'), async (req, res) => {
     });
 });
 
-app.get('/post', async (req, res) => {
+app.get('/api/post', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(20));
 });
 
-app.get('/post/:id', async (req, res) => {
+app.get('/api/post/:id', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     const { id } = req.params;
@@ -198,7 +197,7 @@ app.get('/post/:id', async (req, res) => {
     res.json(postDoc);
 });
 
-app.delete('/post/:id', async (req, res) => {
+app.delete('/api/post/:id', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     const { token } = req.cookies;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import Editor from "../components/Editor";
+import axios from 'axios';
 
 export default function EditPost() {
     const { id } = useParams();
@@ -11,13 +12,11 @@ export default function EditPost() {
     const [redirect, setRedirect] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:4000/post/' + id)
+        axios.get('/post/' + id)
             .then(response => {
-                response.json().then(postInfo => {
-                    setTitle(postInfo.title);
-                    setContent(postInfo.content);
-                    setSummary(postInfo.summary);
-                });
+                setTitle(response.data.title);
+                setContent(response.data.content);
+                setSummary(response.data.summary);
             });
     }, [id]);
 
@@ -32,13 +31,10 @@ export default function EditPost() {
             data.set('file', files?.[0]);
         }
 
-        console.log(data.title);
-        const response = await fetch('http://localhost:4000/post', {
-            method: 'PUT',
-            body: data,
+        const response = await axios.put('/post', data, {
             credentials: 'include',
         });
-        if (response.ok) {
+        if (response.status >= 200 && response.status < 300) {
             setRedirect(true);
         }
     }
@@ -57,7 +53,7 @@ export default function EditPost() {
                 placeholder={'Summary'}
                 value={summary}
                 onChange={ev => setSummary(ev.target.value)} />
-            <input type="file"
+            <input type="file" accept="image/*"
                 onChange={ev => setFiles(ev.target.files)} />
             <Editor onChange={setContent} value={content} />
             <button style={{ marginTop: '5px' }}>Update post</button>
