@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 import { UserContext } from "../userContext/UserContext";
 import Popup from 'reactjs-popup';
 import { Link } from 'react-router-dom';
+import Image from '../components/Image';
 
 export default function PostPage() {
 
@@ -38,7 +39,7 @@ export default function PostPage() {
 
     }
     const catCoverUrl = useMemo(() => {
-        return postInfo?.cover ? `http://localhost:4000/${postInfo.cover}` : "https://cataas.com/cat?type=medium";
+        return postInfo?.cover ? postInfo.cover : "https://cataas.com/cat?type=medium";
     }, [postInfo?.cover]);
 
     if (!postInfo) return "";
@@ -91,7 +92,7 @@ export default function PostPage() {
                 </div>
             ))}
             <div className="image">
-                <img src={catCoverUrl} alt=""></img>
+                <Image src={catCoverUrl} alt=""></Image>
             </div>
             <div className="content" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(postInfo.content) }}></div>
         </div>
