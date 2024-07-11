@@ -1,3 +1,4 @@
+import '../css/PostPage.css';
 import { useContext, useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from 'dompurify';
@@ -6,13 +7,12 @@ import Popup from 'reactjs-popup';
 import { Link } from 'react-router-dom';
 import Image from '../components/Image';
 import axios from "axios";
+import CommentSection from "../components/CommentSection";
 
 export default function PostPage() {
 
 
-
-
-    const { userInfo } = useContext(UserContext)
+    const { userInfo } = useContext(UserContext);
     const [postInfo, setPostInfo] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
@@ -34,8 +34,9 @@ export default function PostPage() {
         if (response.status === 204) {
             navigate('/');
         }
-
     }
+
+
     const catCoverUrl = useMemo(() => {
         return postInfo?.cover ? postInfo.cover : "https://cataas.com/cat?type=medium";
     }, [postInfo?.cover]);
@@ -92,7 +93,17 @@ export default function PostPage() {
             <div className="image">
                 <Image src={catCoverUrl} alt=""></Image>
             </div>
+
+
             <div className="content" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(postInfo.content) }}></div>
+
+
+            <hr></hr>
+
+            <CommentSection />
+
+
+
         </div>
     );
 }

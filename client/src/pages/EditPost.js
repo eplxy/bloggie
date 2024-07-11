@@ -53,8 +53,11 @@ export default function EditPost() {
                 placeholder={'Summary'}
                 value={summary}
                 onChange={ev => setSummary(ev.target.value)} />
-            <input type="file" accept="image/*"
-                onChange={ev => setFiles(ev.target.files)} />
+            <div className="cover-row">
+                <label htmlFor="cover-input" style={files[0] ? { display: "none" } : { display: "inline-flex" }} id="cover-input-label">{!files[0] ? "Set cover image" : ''}</label>
+                <span className="cover-file-name">{files[0] ? files[0].name : ''}</span>
+                <input id="cover-input" type="file" accept="image/*" onChange={ev => setFiles(ev.target.files)} />
+            </div>
             <Editor onChange={setContent} value={content} />
             <button style={{ marginTop: '5px' }}>Update post</button>
         </form>

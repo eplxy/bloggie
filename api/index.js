@@ -13,10 +13,12 @@ const app = express();
 require('dotenv').config({ path: path.resolve(__dirname, './.env') });
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
-const buildPath = path.join(__dirname, '../client/build')
+const buildPath = process.env.NODE_ENV === 'production'
+    ? path.join(__dirname, '../client/build') // Production build path
+    : path.join(__dirname, '../client/src'); // Development build path
 
 const salt = bcrypt.genSaltSync(10);
-const secret = '231pap423e24c6s6sor1s2r8ck';
+const secret = process.env.JWT_SECRET;
 const bucket = 'stella-bloggie';
 const PORT = process.env.PORT || 4000;
 
@@ -24,6 +26,15 @@ app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL || 'http://lo
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
+
+
+function verifyJWT(token) {
+    jwt.verify(token, secret, {}, (err, info) => {
+        if (err) throw err;
+        else return info;
+    })
+    return null;
+}
 
 
 async function uploadToS3(path, originalFilename, mimetype) {
@@ -106,10 +117,8 @@ app.get('/api/profile', (req, res) => {
 
     const { token } = req.cookies;
     if (token) {
-        jwt.verify(token, secret, {}, (err, info) => {
-            if (err) throw err;
-            res.json(info);
-        });
+        info = verifyJWT(token);
+        res.json(info);
     } else {
         res.json(null);
     }
@@ -219,7 +228,7 @@ app.delete('/api/post/:id', async (req, res) => {
     });
 });
 
-// Serve static files from the React app
+
 app.use(express.static(buildPath));
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.

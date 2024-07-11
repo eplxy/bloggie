@@ -1,4 +1,4 @@
-import './App.css';
+import './css/App.css';
 import Layout from './components/Layout';
 import { Route, Routes } from "react-router-dom";
 import IndexPage from './pages/IndexPage';
@@ -11,6 +11,8 @@ import EditPost from './pages/EditPost';
 import axios from "axios";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
+console.log(process.env.REACT_APP_API_BASE_URL);
+console.log(process.env);
 axios.defaults.withCredentials = true;
 
 function App() {
