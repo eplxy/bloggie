@@ -1,43 +1,59 @@
-import { useContext, useEffect, useState } from "react";
-import DOMPurify from 'dompurify';
+import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../userContext/UserContext";
 import axios from "axios";
 import Editor from "./Editor";
+import Comment from "./Comment";
 
 
-export default function CommentSection() {
+export default function CommentSection({ postid }) {
 
     let allowSubmit = true;
-    const [redirect, setRedirect] = useState(false);     
     const [content, setContent] = useState('');
     const { userInfo } = useContext(UserContext);
+    const [comments, setComments] = useState([]);
+
+    useEffect(() => {
+        axios.get(`/comment/${postid}`).then(response => {
+            setComments(response.data);
+        });
+    }, [postid]);
+
 
 
     async function postComment(ev) {
-
         if (allowSubmit) {
             allowSubmit = false;
-            const data = new FormData();
-            data.set('content', content);
-            ev.preventDefault();
-            const response = await axios.post('/post', data, {
-                credentials: 'include',
+            const data = {
+                content: content,
+                post: postid
+            };
+            const response = await axios.post('/comment', JSON.stringify(data), {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true,
             });
             if (response.status >= 200 && response.status < 300) {
-                setRedirect(true);
+                axios.get(`/comment/${postid}`).then(response => {
+                    setComments(response.data);
+                });
+                setContent('');
             }
         } else
             return false;
     }
-
     return (
         <div className="comment-section">
-            <div className="comment-editor">
-                {userInfo && <Editor onChange={setContent} value={content} placeholder={"Leave A Comment"} />}
-                <button onClick={postComment}></button>
-            </div>
+            {userInfo && <div className="comment-editor">
+                <Editor hasModules={false} onChange={setContent} value={content} placeholder={"Leave a comment!"} />
+                {(content && content !== "<p><br></p>") && <button className="post-comment-btn" onClick={postComment}>Post comment</button>}
+                <hr></hr>
+            </div>}
+
             <div className="comments">
-                {/* map out all comments for this post  */}
+                {comments.length > 0 && comments.map(comment => (
+                    <Comment key={comment._id} {...comment} />
+                ))}
             </div>
         </div>
     );

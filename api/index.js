@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Post = require('./models/Post');
+const Comment = require('./models/Comment');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
@@ -10,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const upload = multer();
 require('dotenv').config({ path: path.resolve(__dirname, './.env') });
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
@@ -26,16 +28,6 @@ app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL || 'http://lo
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
-
-
-function verifyJWT(token) {
-    jwt.verify(token, secret, {}, (err, info) => {
-        if (err) throw err;
-        else return info;
-    })
-    return null;
-}
-
 
 async function uploadToS3(path, originalFilename, mimetype) {
     const client = new S3Client({
@@ -117,8 +109,10 @@ app.get('/api/profile', (req, res) => {
 
     const { token } = req.cookies;
     if (token) {
-        info = verifyJWT(token);
-        res.json(info);
+        jwt.verify(token, secret, {}, (err, info) => {
+            if (err) throw err;
+            res.json(info);
+        })
     } else {
         res.json(null);
     }
@@ -153,6 +147,22 @@ app.post('/api/post', photosMiddleware.single('file'), async (req, res) => {
         res.json(postDoc);
     });
 });
+
+app.post('/api/comment', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        if (err) throw err;
+        const { post, content } = req.body;
+        const commentDoc = await Comment.create({
+            post: post,
+            content: content,
+            author: info.id
+        });
+        res.json(commentDoc);
+    });
+});
+
 
 app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
@@ -196,6 +206,14 @@ app.get('/api/post', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(20));
+});
+
+
+app.get('/api/comment/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { id } = req.params;
+    const comments = await Comment.find({ post: id }).populate('author', ['username']).sort({ createdAt: 1 }).limit(20).exec();
+    res.json(comments);
 });
 
 app.get('/api/post/:id', async (req, res) => {

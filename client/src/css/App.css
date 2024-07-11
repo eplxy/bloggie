@@ -156,10 +156,6 @@ form div.cover-row {
   border-radius: 5px;
   background-color: #fff;
 }
-form div.cover-row span.cover-file-name{
-  font-size: 14px;
-  width:100%;
-}
 
 form div.cover-row label {
   font-size: 14px;

@@ -58,7 +58,7 @@ export default function EditPost() {
                 <span className="cover-file-name">{files[0] ? files[0].name : ''}</span>
                 <input id="cover-input" type="file" accept="image/*" onChange={ev => setFiles(ev.target.files)} />
             </div>
-            <Editor onChange={setContent} value={content} />
+            <Editor onChange={setContent} value={content} hasModules={true} />
             <button style={{ marginTop: '5px' }}>Update post</button>
         </form>
     );

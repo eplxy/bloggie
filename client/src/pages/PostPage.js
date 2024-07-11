@@ -100,7 +100,7 @@ export default function PostPage() {
 
             <hr></hr>
 
-            <CommentSection />
+            <CommentSection postid={id} />
 
 
 

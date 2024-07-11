@@ -61,15 +61,14 @@ export default function CreatePost() {
                 placeholder={'Summary'}
                 value={summary}
                 onChange={ev => setSummary(ev.target.value)}
-            />  
+            />
             <div className="cover-row">
-                <label htmlFor="cover-input" style={files[0] ? { display: "none" } : { display: "inline-flex" }} id="cover-input-label">{!files[0] ? "Set cover image" : ''}</label>
-                <span className="cover-file-name">{files[0] ? files[0].name : ''}</span>
+                <label htmlFor="cover-input" id="cover-input-label">{!files[0] ? "Set cover image" : files[0].name}</label>
                 <input id="cover-input" type="file" accept="image/*" onChange={ev => setFiles(ev.target.files)} />
             </div>
 
 
-            <Editor onChange={setContent} value={content} />
+            <Editor onChange={setContent} value={content} hasModules={true}/>
 
             <button style={{ marginTop: '5px' }}>Create post</button>
         </form>
