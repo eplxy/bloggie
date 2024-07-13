@@ -163,6 +163,25 @@ app.post('/api/comment', async (req, res) => {
     });
 });
 
+app.delete('/api/comment/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        if (err) throw err;
+        const { id } = req.params;
+        const commentDoc = await Comment.findById(id);
+        const isAuthor = JSON.stringify(commentDoc.author) === JSON.stringify(info.id);
+        if (!isAuthor) {
+            return res.status(400).json('You are not the author of this comment.');
+        }
+        await commentDoc.deleteOne();
+        res.status(204).json();
+    });
+});
+
+
+
 
 app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);

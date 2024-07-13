@@ -19,7 +19,6 @@ export default function CommentSection({ postid }) {
     }, [postid]);
 
 
-
     async function postComment(ev) {
         if (allowSubmit) {
             allowSubmit = false;
@@ -38,6 +37,7 @@ export default function CommentSection({ postid }) {
                     setComments(response.data);
                 });
                 setContent('');
+                allowSubmit = true;
             }
         } else
             return false;
@@ -52,7 +52,7 @@ export default function CommentSection({ postid }) {
 
             <div className="comments">
                 {comments.length > 0 && comments.map(comment => (
-                    <Comment key={comment._id} {...comment} />
+                    <Comment key={comment._id} {...comment} id={comment._id} />
                 ))}
             </div>
         </div>

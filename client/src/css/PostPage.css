@@ -21,7 +21,7 @@ div.comment {
 }
 
 
-div.comment p.info {
+div.comment p.author-info {
     margin: 6px 0;
     color: #777;
     font-size: .8rem;
@@ -33,4 +33,9 @@ div.comment p.info {
 
 div.post p.info span.author {
     color: #333;
+}
+
+div.comment div.comment-btn-row{
+    display: inline-flex;
+
 }
