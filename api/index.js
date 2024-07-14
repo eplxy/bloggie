@@ -192,7 +192,6 @@ app.put('/api/post/like', async (req, res) => {
         const postDoc = await Post.findById(id);
         liked = postDoc.likes.includes(username)
         let likes = postDoc.likes;
-        console.log(likes);
         if (liked) {
             await postDoc.updateOne({ $pull: { likes: username } });
             likes.splice(username, 1);
@@ -200,7 +199,6 @@ app.put('/api/post/like', async (req, res) => {
             await postDoc.updateOne({ $push: { likes: username } });
             likes.push(username);
         }
-        console.log(likes);
 
         liked = !liked; //switches
 
