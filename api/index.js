@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Post = require('./models/Post');
+const Comment = require('./models/Comment');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
@@ -10,13 +11,16 @@ const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const upload = multer();
 require('dotenv').config({ path: path.resolve(__dirname, './.env') });
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
-const buildPath = path.join(__dirname, '../client/build')
+const buildPath = process.env.NODE_ENV === 'production'
+    ? path.join(__dirname, '../client/build') // Production build path
+    : path.join(__dirname, '../client/src'); // Development build path
 
 const salt = bcrypt.genSaltSync(10);
-const secret = '231pap423e24c6s6sor1s2r8ck';
+const secret = process.env.JWT_SECRET;
 const bucket = 'stella-bloggie';
 const PORT = process.env.PORT || 4000;
 
@@ -24,7 +28,6 @@ app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL || 'http://lo
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
-
 
 async function uploadToS3(path, originalFilename, mimetype) {
     const client = new S3Client({
@@ -109,7 +112,7 @@ app.get('/api/profile', (req, res) => {
         jwt.verify(token, secret, {}, (err, info) => {
             if (err) throw err;
             res.json(info);
-        });
+        })
     } else {
         res.json(null);
     }
@@ -139,17 +142,75 @@ app.post('/api/post', photosMiddleware.single('file'), async (req, res) => {
             summary,
             content,
             cover: url,
-            author: info.id
+            author: info.id,
+            likes: []
         });
         res.json(postDoc);
     });
 });
 
-app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
+app.post('/api/comment', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        if (err) throw err;
+        const { post, content } = req.body;
+        const commentDoc = await Comment.create({
+            post: post,
+            content: content,
+            author: info.id
+        });
+        res.json(commentDoc);
+    });
+});
+
+app.delete('/api/comment/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        if (err) throw err;
+        const { id } = req.params;
+        const commentDoc = await Comment.findById(id);
+        const isAuthor = JSON.stringify(commentDoc.author) === JSON.stringify(info.id);
+        if (!isAuthor) {
+            return res.status(400).json('You are not the author of this comment.');
+        }
+        await commentDoc.deleteOne();
+        res.status(204).json();
+    });
+});
+
+
+app.put('/api/post/like', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        let liked;
+        if (err) throw err;
+        const { id, username } = req.body;
+        const postDoc = await Post.findById(id);
+        liked = postDoc.likes.includes(username)
+        let likes = postDoc.likes;
+        if (liked) {
+            await postDoc.updateOne({ $pull: { likes: username } });
+            likes.splice(username, 1);
+        } else {
+            await postDoc.updateOne({ $push: { likes: username } });
+            likes.push(username);
+        }
+
+        liked = !liked; //switches
+
+        res.json({likes:likes});
+
+    });
+});
+
+app.put('/api/post/edit', photosMiddleware.single('file'), async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     let url = null;
-
 
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, async (err, info) => {
@@ -174,10 +235,9 @@ app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
             title,
             summary,
             content,
-            cover: url ? url : postDoc.cover
+            cover: url ? url : postDoc.cover,
+            likes: postDoc.likes
         });
-
-
 
         res.json(postDoc);
     });
@@ -186,7 +246,15 @@ app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
 app.get('/api/post', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
-    res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(20));
+    res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(40));
+});
+
+
+app.get('/api/comment/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { id } = req.params;
+    const comments = await Comment.find({ post: id }).populate('author', ['username']).sort({ createdAt: 1 }).limit(20).exec();
+    res.json(comments);
 });
 
 app.get('/api/post/:id', async (req, res) => {
@@ -219,7 +287,7 @@ app.delete('/api/post/:id', async (req, res) => {
     });
 });
 
-// Serve static files from the React app
+
 app.use(express.static(buildPath));
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.

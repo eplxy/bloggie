@@ -31,7 +31,7 @@ export default function EditPost() {
             data.set('file', files?.[0]);
         }
 
-        const response = await axios.put('/post', data, {
+        const response = await axios.put('/post/edit', data, {
             credentials: 'include',
         });
         if (response.status >= 200 && response.status < 300) {
@@ -53,9 +53,12 @@ export default function EditPost() {
                 placeholder={'Summary'}
                 value={summary}
                 onChange={ev => setSummary(ev.target.value)} />
-            <input type="file" accept="image/*"
-                onChange={ev => setFiles(ev.target.files)} />
-            <Editor onChange={setContent} value={content} />
+            <div className="cover-row">
+                <label htmlFor="cover-input" style={files[0] ? { display: "none" } : { display: "inline-flex" }} id="cover-input-label">{!files[0] ? "Set cover image" : ''}</label>
+                <span className="cover-file-name">{files[0] ? files[0].name : ''}</span>
+                <input id="cover-input" type="file" accept="image/*" onChange={ev => setFiles(ev.target.files)} />
+            </div>
+            <Editor onChange={setContent} value={content} hasModules={true} />
             <button style={{ marginTop: '5px' }}>Update post</button>
         </form>
     );

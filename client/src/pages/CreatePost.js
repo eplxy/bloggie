@@ -27,7 +27,6 @@ export default function CreatePost() {
     const [files, setFiles] = useState('');
     const [redirect, setRedirect] = useState(false);
 
-
     async function createNewPost(ev) {
 
         if (allowSubmit) {
@@ -38,7 +37,7 @@ export default function CreatePost() {
             data.set('content', content);
             data.set('file', files[0]);
             ev.preventDefault();
-            const response = await axios.post('/post', data,{
+            const response = await axios.post('/post', data, {
                 credentials: 'include',
             });
             if (response.status >= 200 && response.status < 300) {
@@ -63,10 +62,13 @@ export default function CreatePost() {
                 value={summary}
                 onChange={ev => setSummary(ev.target.value)}
             />
-            <input type="file" accept="image/*"
-                onChange={ev => setFiles(ev.target.files)}
-            />
-            <Editor onChange={setContent} value={content} />
+            <div className="cover-row">
+                <label htmlFor="cover-input" id="cover-input-label">{!files[0] ? "Set cover image" : files[0].name}</label>
+                <input id="cover-input" type="file" accept="image/*" onChange={ev => setFiles(ev.target.files)} />
+            </div>
+
+
+            <Editor onChange={setContent} value={content} hasModules={true}/>
 
             <button style={{ marginTop: '5px' }}>Create post</button>
         </form>

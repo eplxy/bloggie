@@ -1,0 +1,111 @@
+/* comment section */
+button.post-comment-btn {
+    height: 35px;
+}
+
+.quill>.ql-container>.ql-editor.ql-blank::before {
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+div.comment {
+
+    @media screen and (min-width: 600px) {
+        display: grid;
+        grid-template-columns: 0.6fr 1.4fr;
+    }
+
+    margin-bottom: 0px;
+}
+
+
+div.comment p.author-info {
+    margin: 0px;
+    color: #777;
+    font-size: .8rem;
+    font-weight: bold;
+    display: flex;
+    gap: 10px;
+
+}
+
+div.post p.info span.author {
+    color: #333;
+}
+
+div.comment div.comment-info {
+
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+
+    @media screen and (min-width: 600px) {
+        min-height: 60px;
+    }
+}
+
+div.comment div.comment-btn-row {
+    display: none;
+}
+
+div.comment:hover .comment-btn-row {
+    display: inline-flex;
+}
+
+div.comment .comment-delete-btn:hover{
+    color:rgb(226, 24, 57);
+}
+
+div.comment>div.content {
+    margin-left: 10px;
+}
+
+/* post stuff */
+div.post-page div.post-header {
+    display: block;
+    text-align: center;
+}
+
+div.post-header div.reader-action-row {
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+    justify-items: center;
+    margin-bottom: 8px;
+}
+
+div.post-header div.reader-action-row span.like-count {
+    margin-bottom:8px;
+    font-size: 20px;
+}
+
+div.post-page span.post-like-btn svg {
+    height: 40px;
+    padding: 4px;
+    stroke-width: 1px;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+div.post-page span.post-like-btn-liked svg {
+    height: 40px;
+    padding: 4px;
+    stroke-width: 1px;
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: rgb(243, 107, 170);
+    fill:white;
+}
+
+div.post-page span.post-like-btn svg:hover {
+    stroke: rgb(158, 30, 73);
+    fill: rgb(243, 107, 170);
+}
+div.post-page div.like-count{
+    gap:6px;
+    margin-top: 6px;
+    min-height: fit-content;
+    display: inline-flex;
+    align-content:center;
+}

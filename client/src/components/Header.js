@@ -12,7 +12,7 @@ export default function Header() {
         // Assuming the token is stored in local storage under the key 'token'
         const token = localStorage.getItem('token');
         axios.get('/profile', {
-            credentials: 'include',
+            withCredentials: true,
             headers: {
                 'Authorization': `Bearer ${token}`
             },
@@ -39,7 +39,7 @@ export default function Header() {
     const username = userInfo?.username;
 
     return (<header>
-        <Link reloadDocument to="/" className="logo">Bloggie</Link>
+        <Link reloadDocument to="/" className="logo" >Bloggie</Link>
         <nav>
             {username && (<>
                 <span style={{ fontWeight: "bold" }}>Hi there, {username}!</span>

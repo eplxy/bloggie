@@ -4,3 +4,5 @@ api/uploads/*
 # dotenv environment variables file
 .env
 .env.test
+api/env
+client/env

@@ -1,3 +1,4 @@
+import '../css/PostPage.css';
 import { useContext, useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from 'dompurify';
@@ -6,24 +7,25 @@ import Popup from 'reactjs-popup';
 import { Link } from 'react-router-dom';
 import Image from '../components/Image';
 import axios from "axios";
+import CommentSection from "../components/CommentSection";
 
 export default function PostPage() {
-
-
-
-
-    const { userInfo } = useContext(UserContext)
-    const [postInfo, setPostInfo] = useState(null);
+    const { userInfo } = useContext(UserContext);
+    const [postInfo, setPostInfo] = useState();
     const { id } = useParams();
     const navigate = useNavigate();
+    const [liked, setLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(0);
 
 
     useEffect(() => {
         axios.get(`/post/${id}`)
             .then(response => {
                 setPostInfo(response.data);
+                setLiked(response.data.likes?.includes(userInfo?.username));
+                setLikeCount(response.data.likes?.length);
             });
-    }, [id]);
+    }, [id, userInfo?.username]);
 
 
     async function deletePost(ev) {
@@ -34,19 +36,45 @@ export default function PostPage() {
         if (response.status === 204) {
             navigate('/');
         }
+    }
+
+    async function updateLiked(ev) {
+        ev.preventDefault();
+
+        const response = await axios.put('/post/like',
+            { 'username': userInfo.username, 'id': id },
+            { withCredentials: true, });
+
+        console.log(response.data.likes);
+
+        setLiked(!liked);
+        setPostInfo({ ...response.data.likes, ...postInfo });
+        setLikeCount(response.data.likes.length);
 
     }
+
+
+
     const catCoverUrl = useMemo(() => {
         return postInfo?.cover ? postInfo.cover : "https://cataas.com/cat?type=medium";
     }, [postInfo?.cover]);
 
     if (!postInfo) return "";
     return (
-        <div className="post-page">
-            <h1 className="title">{postInfo.title}</h1>
-            <time>{postInfo.createdAt}</time>
-            <div className="author">by @{postInfo.author.username}</div>
-            {userInfo && (userInfo.id === postInfo.author._id && (
+        <div className="post-page" >
+            <div className="post-header">
+                <h1 className="title">{postInfo.title}</h1>
+                <time>{postInfo.createdAt}</time>
+                <div className="author">by @{postInfo.author?.username}</div>
+                {userInfo && <div className="reader-action-row">
+                    <span className={liked ? "post-like-btn-liked" : "post-like-btn"} onClick={updateLiked}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                        </svg>
+                    </span> <span className='like-count'>{likeCount} </span>
+                </div>}
+            </div>
+            {userInfo && (userInfo.id === postInfo.author?._id && (
                 <div className="edit-delete">
                     <div className="edit">
                         <Link className="edit-btn" to={`/edit/${postInfo._id}`}>
@@ -92,7 +120,17 @@ export default function PostPage() {
             <div className="image">
                 <Image src={catCoverUrl} alt=""></Image>
             </div>
+
+
             <div className="content" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(postInfo.content) }}></div>
+
+
+            <hr></hr>
+
+            <CommentSection postid={id} />
+
+
+
         </div>
     );
 }
