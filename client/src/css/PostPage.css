@@ -26,12 +26,12 @@ div.comment p.author-info {
     font-weight: bold;
     display: flex;
     gap: 10px;
-
 }
 
 div.post p.info span.author {
     color: #333;
 }
+
 
 div.comment div.comment-info {
 
@@ -39,27 +39,57 @@ div.comment div.comment-info {
     justify-content: space-between;
     width: 100%;
     align-items: center;
+    min-height: 24px;
 
     @media screen and (min-width: 600px) {
         min-height: 60px;
     }
 }
 
-div.comment div.comment-btn-row {
+div.comment div.comment-btn-row .comment-delete-btn {
     display: none;
 }
 
-div.comment:hover .comment-btn-row {
+div.comment .comment-btn-row {
+    display: inline-flex;
+    align-content: center;
+}
+
+div.comment:hover div.comment-btn-row .comment-delete-btn {
     display: inline-flex;
 }
 
-div.comment .comment-delete-btn:hover{
-    color:rgb(226, 24, 57);
+div.comment .comment-delete-btn:hover {
+    color: rgb(226, 24, 57);
 }
 
 div.comment>div.content {
     margin-left: 10px;
+
+    @media screen and (min-width: 600px) {
+        margin-left: 20px
+    }
 }
+
+
+div.comment-btn-row div.like-btn-and-count {
+    align-content: center;
+    display: inline-flex;
+    gap: 2px;
+}
+
+div.like-btn-and-count svg {
+    margin-top: 1px;
+}
+
+span.comment-like-btn:hover svg {
+    color:rgb(158, 30, 73);
+}
+
+span.comment-like-btn-liked svg {
+    fill:rgb(243, 107, 170);
+}
+
 
 /* post stuff */
 div.post-page div.post-header {
@@ -68,17 +98,23 @@ div.post-page div.post-header {
 }
 
 div.post-header div.reader-action-row {
-    display: inline-flex;
+    display: flexbox;
     gap: 12px;
     align-items: center;
     justify-items: center;
     margin-bottom: 8px;
 }
 
-div.post-header div.reader-action-row span.like-count {
-    margin-bottom:8px;
-    font-size: 20px;
+div.post-header div.like-row {
+    display: inline-flex;
+    color: gray;
+    align-items: center;
 }
+
+div.post-header svg {
+    height: 20px;
+}
+
 
 div.post-page span.post-like-btn svg {
     height: 40px;
@@ -95,17 +131,18 @@ div.post-page span.post-like-btn-liked svg {
     border: 1px solid black;
     border-radius: 10px;
     background-color: rgb(243, 107, 170);
-    fill:white;
+    fill: white;
 }
 
 div.post-page span.post-like-btn svg:hover {
     stroke: rgb(158, 30, 73);
     fill: rgb(243, 107, 170);
 }
-div.post-page div.like-count{
-    gap:6px;
+
+div.post-page div.like-count {
+    gap: 6px;
     margin-top: 6px;
     min-height: fit-content;
     display: inline-flex;
-    align-content:center;
+    align-content: center;
 }

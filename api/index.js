@@ -158,7 +158,8 @@ app.post('/api/comment', async (req, res) => {
         const commentDoc = await Comment.create({
             post: post,
             content: content,
-            author: info.id
+            author: info.id,
+            likes: []
         });
         res.json(commentDoc);
     });
@@ -202,7 +203,7 @@ app.put('/api/post/like', async (req, res) => {
 
         liked = !liked; //switches
 
-        res.json({likes:likes});
+        res.json({ likes: likes });
 
     });
 });
@@ -255,6 +256,31 @@ app.get('/api/comment/:id', async (req, res) => {
     const { id } = req.params;
     const comments = await Comment.find({ post: id }).populate('author', ['username']).sort({ createdAt: 1 }).limit(20).exec();
     res.json(comments);
+});
+
+app.put('/api/comment/like', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        let liked;
+        if (err) throw err;
+        const { id, username } = req.body;
+        const commentDoc = await Comment.findById(id);
+        liked = commentDoc.likes.includes(username)
+        let likes = commentDoc.likes;
+        if (liked) {
+            await commentDoc.updateOne({ $pull: { likes: username } });
+            likes.splice(username, 1);
+        } else {
+            await commentDoc.updateOne({ $push: { likes: username } });
+            likes.push(username);
+        }
+
+        liked = !liked; //switches (actually pretty useless but it's for logic i suppose)
+
+        res.json({ likes: likes });
+
+    });
 });
 
 app.get('/api/post/:id', async (req, res) => {

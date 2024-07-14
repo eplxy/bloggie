@@ -45,7 +45,6 @@ export default function PostPage() {
             { 'username': userInfo.username, 'id': id },
             { withCredentials: true, });
 
-        console.log(response.data.likes);
 
         setLiked(!liked);
         setPostInfo({ ...response.data.likes, ...postInfo });
@@ -66,12 +65,18 @@ export default function PostPage() {
                 <h1 className="title">{postInfo.title}</h1>
                 <time>{postInfo.createdAt}</time>
                 <div className="author">by @{postInfo.author?.username}</div>
+                <div className='like-row'>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                    </svg>
+                    <span className='like-count'>{likeCount} </span>
+                </div>
                 {userInfo && <div className="reader-action-row">
                     <span className={liked ? "post-like-btn-liked" : "post-like-btn"} onClick={updateLiked}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                         </svg>
-                    </span> <span className='like-count'>{likeCount} </span>
+                    </span>
                 </div>}
             </div>
             {userInfo && (userInfo.id === postInfo.author?._id && (
