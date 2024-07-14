@@ -31,7 +31,7 @@ export default function EditPost() {
             data.set('file', files?.[0]);
         }
 
-        const response = await axios.put('/post', data, {
+        const response = await axios.put('/post/edit', data, {
             credentials: 'include',
         });
         if (response.status >= 200 && response.status < 300) {

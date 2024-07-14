@@ -7,7 +7,7 @@ export default function IndexPage() {
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
-        axios.get('/post').then(response => {
+        axios.get('/post',).then(response => {
             setPosts(response.data);
         });
 

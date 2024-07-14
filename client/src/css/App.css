@@ -209,7 +209,7 @@ div.post-page div.author {
   text-align: center;
   margin-bottom: 20px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 div.post-page div.content {
@@ -228,7 +228,7 @@ div.edit-delete {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 8px;
   margin-bottom: 50px;
   align-items: center;
 }

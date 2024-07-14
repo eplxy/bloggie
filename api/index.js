@@ -142,7 +142,8 @@ app.post('/api/post', photosMiddleware.single('file'), async (req, res) => {
             summary,
             content,
             cover: url,
-            author: info.id
+            author: info.id,
+            likes: []
         });
         res.json(postDoc);
     });
@@ -181,13 +182,37 @@ app.delete('/api/comment/:id', async (req, res) => {
 });
 
 
+app.put('/api/post/like', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        let liked;
+        if (err) throw err;
+        const { id, username } = req.body;
+        const postDoc = await Post.findById(id);
+        liked = postDoc.likes.includes(username)
+        let likes = postDoc.likes;
+        console.log(likes);
+        if (liked) {
+            await postDoc.updateOne({ $pull: { likes: username } });
+            likes.splice(username, 1);
+        } else {
+            await postDoc.updateOne({ $push: { likes: username } });
+            likes.push(username);
+        }
+        console.log(likes);
 
+        liked = !liked; //switches
 
-app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
+        res.json({likes:likes});
+
+    });
+});
+
+app.put('/api/post/edit', photosMiddleware.single('file'), async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
     let url = null;
-
 
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, async (err, info) => {
@@ -212,10 +237,9 @@ app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
             title,
             summary,
             content,
-            cover: url ? url : postDoc.cover
+            cover: url ? url : postDoc.cover,
+            likes: postDoc.likes
         });
-
-
 
         res.json(postDoc);
     });
@@ -224,7 +248,7 @@ app.put('/api/post', photosMiddleware.single('file'), async (req, res) => {
 app.get('/api/post', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
 
-    res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(20));
+    res.json(await Post.find().populate('author', ['username']).sort({ createdAt: -1 }).limit(40));
 });
 
 
