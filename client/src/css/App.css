@@ -42,6 +42,11 @@ header {
   margin-bottom: 50px;
   align-items: center;
 }
+header div.header-lhs{
+  display:inline-flex;
+  align-items:center;
+  gap: 30px;
+}
 
 header a {
   text-decoration: none;
@@ -146,7 +151,7 @@ input {
 form div.cover-row {
   display: inline-flex;
   align-items: center;
-  max-height:30px;
+  max-height: 30px;
 
 
   margin-bottom: 5px;
@@ -159,7 +164,7 @@ form div.cover-row {
 
 form div.cover-row label {
   font-size: 14px;
-  width:100%;
+  width: 100%;
   min-width: 100px;
   max-height: 16px;
   color: #777;
@@ -167,7 +172,7 @@ form div.cover-row label {
 
 #cover-input {
   visibility: hidden;
-  display:none;
+  display: none;
   max-height: 16px;
 }
 
@@ -264,6 +269,20 @@ span svg {
   height: 20px;
 }
 
+p.info span.like-row {
+  display: inline-flex;
+  color: rgb(107, 103, 103);
+  align-items: center;
+}
+
+div.like-row svg {
+  height: 20px;
+}
+
+div.like-row span.like-count {
+  margin-bottom: 1px;
+}
+
 .confirm-delete-content {
   margin: auto;
   background: rgb(255, 255, 255);
@@ -301,4 +320,11 @@ span svg {
 
 [data-popup='tooltip'].confirm-delete-overlay {
   background: transparent;
+}
+
+a.changelog-link{
+  display:none;
+  @media screen and (min-width: 600px) {
+    display:inline;
+  }
 }

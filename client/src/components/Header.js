@@ -39,8 +39,12 @@ export default function Header() {
     const username = userInfo?.username;
 
     return (<header>
-        <Link reloadDocument to="/" className="logo" >Bloggie</Link>
+        <div className="header-lhs">
+            <Link reloadDocument to="/" className="logo" >Bloggie</Link>
+            <Link className="changelog-link" to="https://github.com/eplxy/bloggie/blob/main/changelog.md">Changelog</Link>
+        </div>
         <nav>
+
             {username && (<>
                 <span style={{ fontWeight: "bold" }}>Hi there, {username}!</span>
                 <Link to="/create">Create new post</Link>

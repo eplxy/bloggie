@@ -25,3 +25,12 @@
 - Show entire image within post
 - Add label for uploading a cover image
 - GitHub repo to public
+
+
+## Sprint 3 - profile update, hopefully (July 21st, 2024)
+### Adjustments to previous update, july 14th
+- Likes on comments
+- Add link to changelog on website
+- Ability to view likes without being logged in
+- Display likes on index page
+### New content
